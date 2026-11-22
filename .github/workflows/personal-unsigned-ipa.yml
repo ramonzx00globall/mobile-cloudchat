@@ -13,6 +13,7 @@ jobs:
     env:
       CI: '1'
       EXPO_NO_TELEMETRY: '1'
+      SENTRY_DISABLE_AUTO_UPLOAD: 'true'
       EXPO_PUBLIC_APP_NAME: Atendimento Pessoal
       EXPO_PUBLIC_APP_SLUG: atendimento-pessoal
       EXPO_PUBLIC_APP_SCHEME: atendimentopessoal
