@@ -1,0 +1,69 @@
+name: IPA pessoal sem assinatura
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 120
+    env:
+      CI: '1'
+      EXPO_NO_TELEMETRY: '1'
+      EXPO_PUBLIC_APP_NAME: Atendimento Pessoal
+      EXPO_PUBLIC_APP_SLUG: atendimento-pessoal
+      EXPO_PUBLIC_APP_SCHEME: atendimentopessoal
+      EXPO_PUBLIC_IOS_BUNDLE_IDENTIFIER: com.atendimento.pessoal
+      EXPO_PUBLIC_CHATWOOT_BASE_URL: https://cloudchat.cloudhumans.com
+      EXPO_PUBLIC_MINIMUM_CHATWOOT_VERSION: 4.1.0
+      EXPO_PUBLIC_DISABLE_PUSH: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Instalar dependências JavaScript
+        run: |
+          corepack enable
+          corepack pnpm install --frozen-lockfile
+      - name: Gerar projeto iOS
+        run: corepack pnpm exec expo prebuild --platform ios --no-install
+      - name: Instalar dependências iOS
+        run: |
+          cd ios
+          pod install --repo-update
+      - name: Compilar sem assinatura
+        run: |
+          set -euo pipefail
+          workspace=$(find ios -maxdepth 1 -name '*.xcworkspace' -print -quit)
+          test -n "$workspace"
+          scheme=$(basename "$workspace" .xcworkspace)
+          archive="$RUNNER_TEMP/AtendimentoPessoal.xcarchive"
+          xcodebuild \
+            -workspace "$workspace" \
+            -scheme "$scheme" \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$archive" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY='' \
+            DEVELOPMENT_TEAM='' \
+            archive
+          app=$(find "$archive/Products/Applications" -maxdepth 1 -name '*.app' -print -quit)
+          test -n "$app"
+          mkdir -p "$RUNNER_TEMP/Payload" dist
+          cp -R "$app" "$RUNNER_TEMP/Payload/"
+          (cd "$RUNNER_TEMP" && zip -qry "$GITHUB_WORKSPACE/dist/AtendimentoPessoal.ipa" Payload)
+          unzip -t dist/AtendimentoPessoal.ipa
+      - name: Disponibilizar IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: AtendimentoPessoal-IPA
+          path: dist/AtendimentoPessoal.ipa
+          if-no-files-found: error
+          retention-days: 7
