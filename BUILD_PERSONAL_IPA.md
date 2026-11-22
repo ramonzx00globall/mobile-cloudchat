@@ -15,6 +15,8 @@ O nome e o identificador do app estão definidos no workflow (`Atendimento Pesso
 
 `EXPO_PUBLIC_DISABLE_PUSH=true` evita exigir o arquivo Firebase da instância oficial e desativa notificações push no app pessoal. O fluxo de atendimento por abertura direta do app continua disponível. Esse modo também remove as permissões nativas de push e de domínios associados. A parte de push pode ser reativada depois com uma configuração Firebase própria e credenciais Apple adequadas.
 
-O workflow ainda precisa ser executado em macOS para validar a compilação nativa. A checagem de versão mínima do servidor continua em 4.1.0; o aviso do CloudChat pode aparecer até validarmos a compatibilidade na instalação real. O ajuste de templates também depende da resposta real da API CloudChat para ser confirmado.
+O primeiro IPA foi compilado com sucesso na [execução 45055124490](https://github.com/ramonzx00globall/mobile-cloudchat/actions/runs/45055124490). Na seção **Artifacts** dessa página, baixe **AtendimentoPessoal-IPA** e extraia o ZIP para obter `AtendimentoPessoal.ipa`.
+
+A checagem de versão mínima do servidor continua em 4.1.0; o aviso do CloudChat pode aparecer até validarmos a compatibilidade na instalação real. O ajuste de templates também depende da resposta real da API CloudChat para ser confirmado.
 
 Não coloque login, senha, token, arquivo `.env` nem dados de clientes no repositório.
